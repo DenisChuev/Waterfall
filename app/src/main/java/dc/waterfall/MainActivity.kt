@@ -3,6 +3,7 @@ package dc.waterfall
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,9 +26,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import dc.waterfall.ui.theme.WaterfallTheme
 
 class MainActivity : ComponentActivity() {
@@ -56,13 +62,14 @@ fun DisplayGlass() {
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight()
-                .padding(16.dp, 16.dp, 0.dp, 0.dp),
-            shape = RoundedCornerShape(16.dp)
+                .padding(16.dp, 16.dp, 0.dp, 8.dp),
+            shape = RoundedCornerShape(16.dp),
+            border = BorderStroke(1.dp, "#d4e3fc".toColor())
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.LightGray),
+                    .background("#f0f5fc".toColor()),
                 contentAlignment = Alignment.Center
 
             ) {
@@ -86,10 +93,59 @@ fun DisplayGlass() {
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(8.dp),
-                    contentDescription = "Добавить"
+                    contentDescription = "Добавить",
+                    tint = "#346fcf".toColor()
                 )
             }
         }
+    }
+}
+
+@Composable
+fun ColumnRowTest(
+    content: @Composable () -> Unit
+) = Layout(content) { measurables, constraints ->
+    // 1. The measuring phase.
+    val placeables = measurables.map { measurable ->
+        measurable.measure(constraints)
+    }
+
+    // 2. The sizing phase.
+    layout(constraints.maxWidth, constraints.maxHeight) {
+        // 3. The placement phase.
+        var yPosition = 0
+        var xPosition = 0
+
+        var first = true
+
+        placeables.forEach { placeable ->
+            if (placeable.height + yPosition < constraints.maxHeight) {
+                yPosition += if (first) {
+                    first = false;
+                    0
+                } else placeable.height
+            } else {
+                yPosition += (placeable.height)
+                xPosition = 0
+            }
+            placeable.place(xPosition, yPosition)
+        }
+    }
+}
+
+@Preview
+@Composable
+fun ReverseFlowRowPreview() {
+    ColumnRowTest() {
+        Text("First", fontSize = 20.sp, style = TextStyle(background = Color.Red))
+        Text("Second", fontSize = 20.sp, style = TextStyle(background = Color.LightGray))
+        Text("Third", fontSize = 20.sp, style = TextStyle(background = Color.Blue))
+        Text("Fourth", fontSize = 20.sp, style = TextStyle(background = Color.Green))
+        Text("Fifth", fontSize = 20.sp, style = TextStyle(background = Color.Gray))
+        Text("Sixth", fontSize = 20.sp, style = TextStyle(background = Color.Yellow))
+        Text("Seventh", fontSize = 20.sp, style = TextStyle(background = Color.Cyan))
+        Text("Eight", fontSize = 20.sp, style = TextStyle(background = Color.Magenta))
+        Text("Ninth", fontSize = 20.sp, style = TextStyle(background = Color.DarkGray))
     }
 }
 
